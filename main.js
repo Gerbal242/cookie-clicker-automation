@@ -67,6 +67,15 @@ function startAutomation() {
           }
         });
       }
+
+      // Purchase Raindeer
+      setInterval(function () {
+        Game.shimmers.forEach(function (shimmer) {
+          if (shimmer.type == "reindeer") {
+            shimmer.pop();
+          }
+        });
+      }, 500);
     } catch (err) {
       console.error("Cookie clicking error:", err.message);
     }
@@ -190,3 +199,191 @@ function startAutomation() {
 window.stopAutomation = function () {
   console.log("Automation not yet started");
 };
+
+var interval = 1000;
+var autoBuy = true;
+var autoBuyTxt = "on";
+
+document.addEventListener("keydown", function (event) {
+  if (event.keyCode == 65) {
+    autoBuy = !autoBuy;
+    autoBuyTxt = autoBuy ? "on" : "off";
+  }
+});
+
+function OptimalItem() {
+  // Check if game is fully loaded and initialized
+  if (!Game || !Game.ready || !Game.ObjectsById || !Game.UpgradesInStore) {
+    console.debug("Game not fully loaded, skipping optimization");
+    return {
+      buy: function () {
+        console.debug("Cannot buy: game not ready");
+      },
+    };
+  }
+
+  var cpc = Number.MAX_VALUE;
+  var CurrentCps = Game.cookiesPs;
+  var sel = null;
+  var name = "";
+  var price = 0;
+  var cpsItem = 0;
+
+  // Check upgrades
+  try {
+    for (let i = Game.UpgradesInStore.length - 1; i >= 0; i--) {
+      var me = Game.UpgradesInStore[i];
+      if (!me || !me.id) continue;
+
+      var x = me.id;
+      // Skip specific upgrades that might cause issues
+      if (x != 64 && x != 74 && x != 84 && x != 85) {
+        try {
+          let cps1 = 0;
+          if (Game.UpgradesById[x] && Game.UpgradesById[x].toggle) {
+            Game.UpgradesById[x].toggle();
+            Game.CalculateGains();
+
+            // Calculate total CPS
+            Game.ObjectsById.forEach(function (obj) {
+              if (obj && typeof obj.cps === "function") {
+                try {
+                  cps1 += obj.cps() * (obj.amount || 0);
+                } catch (e) {
+                  console.debug("Error calculating CPS for " + obj.name, e);
+                }
+              }
+            });
+
+            var cps2 = cps1 * (Game.globalCpsMult || 1);
+            Game.UpgradesById[x].toggle();
+            Game.CalculateGains();
+            var myCps = cps2 - CurrentCps;
+
+            if (myCps >= 0.1) {
+              var cpsUpgrade =
+                (me.basePrice * (Game.cookiesPs + myCps)) / myCps;
+              if (cpsUpgrade < cpc) {
+                cpc = cpsUpgrade;
+                sel = me;
+                cpsItem = myCps;
+                name = me.name;
+                price = Math.round(me.basePrice);
+              }
+            }
+          }
+        } catch (e) {
+          console.debug("Error processing upgrade " + me.name, e);
+        }
+      }
+    }
+  } catch (e) {
+    console.debug("Error processing upgrades", e);
+  }
+
+  // Check buildings
+  try {
+    Game.ObjectsById.forEach(function (building, i) {
+      if (!building || typeof building.cps !== "function") return;
+
+      try {
+        let cps1 = 0;
+        building.amount++;
+        Game.CalculateGains();
+
+        // Calculate total CPS
+        Game.ObjectsById.forEach(function (obj) {
+          if (obj && typeof obj.cps === "function") {
+            try {
+              cps1 += obj.cps() * (obj.amount || 0);
+            } catch (e) {
+              console.debug("Error calculating CPS for " + obj.name, e);
+            }
+          }
+        });
+
+        var cps2 = cps1 * (Game.globalCpsMult || 1);
+        building.amount--;
+        Game.CalculateGains();
+        var myCps = cps2 - CurrentCps;
+
+        if (myCps >= 0.1) {
+          var cpsBuilding = (building.price * (Game.cookiesPs + myCps)) / myCps;
+          if (cpsBuilding < cpc) {
+            cpc = cpsBuilding;
+            sel = building;
+            cpsItem = myCps;
+            name = building.name;
+            price = Math.round(building.price);
+          }
+        }
+      } catch (e) {
+        console.debug("Error processing building " + building.name, e);
+      }
+    });
+  } catch (e) {
+    console.debug("Error processing buildings", e);
+  }
+
+  // If nothing was selected, return dummy object
+  if (!sel) {
+    return {
+      buy: function () {
+        console.debug("No optimal purchase found");
+      },
+    };
+  }
+
+  // Update ticker
+  try {
+    var time = (price - Game.cookies) / Game.cookiesPs;
+    time = time < 0 ? 0 : Beautify(time);
+
+    var numb = Math.abs(Game.computedMouseCps / Game.cookiesPs);
+    numb = numb.toFixed(3);
+
+    Game.Ticker =
+      "Buying " +
+      name +
+      " for " +
+      Beautify(price) +
+      " at " +
+      Beautify(Math.round(price / (cpsItem * (Game.globalCpsMult || 1)))) +
+      " cookies per CPS!" +
+      "<br>This will take " +
+      time +
+      " seconds without manually clicking." +
+      "<br>Each click would save you " +
+      numb +
+      " seconds." +
+      "<br>Click A to toggle auto-buy. Auto-buy is currently " +
+      autoBuyTxt;
+
+    Game.TickerAge = interval;
+  } catch (e) {
+    console.debug("Error updating ticker", e);
+  }
+
+  return sel;
+}
+
+// Modify the cookieBot interval to be more resilient
+var cookieBot = setInterval(function () {
+  try {
+    if (!Game || !Game.ready) {
+      console.debug("Waiting for game to initialize...");
+      return;
+    }
+
+    if (autoBuy) {
+      const optimal = OptimalItem();
+      if (optimal && optimal.buy && typeof optimal.buy === "function") {
+        optimal.buy();
+      }
+    } else {
+      OptimalItem();
+    }
+  } catch (e) {
+    console.debug("Error in cookieBot:", e);
+  }
+}, interval);
