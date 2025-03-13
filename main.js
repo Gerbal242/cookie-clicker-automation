@@ -9,7 +9,7 @@
 
 // Configuration
 const CONFIG = {
-    TICK_RATE: 1000,                   // How often to run the main loop (in milliseconds)
+    TICK_RATE: 1,                   // How often to run the main loop (in milliseconds)
     MAX_BUILDING_ID: 19,            // Highest building ID in the game
     MAX_UPGRADE_ID: 76,             // Highest upgrade ID in the game
     BULDING_UPGRADE_MULT: 2,
@@ -34,7 +34,7 @@ const cookieAutomation = setInterval(function() {
             CONFIG.MIN_BUILDING_COST = Math.min(CONFIG.MIN_BUILDING_COST, building.price)
             building_cost = CONFIG.MIN_BUILDING_COST;
 
-            console.log("Printing the building and upgrade in building purchase", building_cost, upgrade_cost)
+            // console.log("Printing the building and upgrade in building purchase", building_cost, upgrade_cost)
             // compare building cost to assuring it is > 5* upgrade cost
             if (building && !building.locked && building_cost > (5 * upgrade_cost)) {
                 building.buy(1);
@@ -49,7 +49,7 @@ const cookieAutomation = setInterval(function() {
             if (!upgrade.bought) {
                 CONFIG.MIN_UPGRADE_COST = Math.min(CONFIG.MIN_UPGRADE_COST, upgrade.baseprice)
                 upgrade_cost = CONFIG.MIN_UPGRADE_COST;
-                console.log("Printing the building and upgrade in upgrade purchase", building_cost, upgrade_cost)
+                // console.log("Printing the building and upgrade in upgrade purchase", building_cost, upgrade_cost)
 
                 if (upgrade) {
                     try{
