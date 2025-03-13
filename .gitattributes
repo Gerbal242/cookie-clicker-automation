@@ -1,0 +1,11 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# JavaScript files
+*.js text eol=lf
+
+# Documentation
+*.md text eol=lf
+LICENSE text eol=lf
+.gitattributes text eol=lf
+.gitignore text eol=lf 
