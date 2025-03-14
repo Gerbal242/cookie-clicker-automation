@@ -5,11 +5,8 @@ An advanced automation script for Cookie Clicker that optimizes cookie productio
 ## Features
 
 - 🍪 **Smart Cookie Clicking**: Automatically clicks the big cookie at maximum efficiency
-- 🏢 **Optimal Building Purchases**: Uses cost-benefit analysis to buy the most efficient buildings
-- ⬆️ **Intelligent Upgrade Management**: Calculates the best upgrades to buy based on CPS improvement
 - ✨ **Golden Cookie & Shimmer Collection**: Automatically collects all golden cookies and special events
 - 🎯 **Wrinkler Management**: Automatically pops wrinklers to maximize cookie production
-- 🦌 **Reindeer Collection**: Automatically collects reindeer during Christmas season
 - ⚡ **Performance Optimized**: Efficient code with proper error handling and safety checks
 - 🎮 **User Controls**: Toggle automation with keyboard shortcuts
 
@@ -27,7 +24,6 @@ An advanced automation script for Cookie Clicker that optimizes cookie productio
 ### Basic Controls
 
 - The script starts automatically after pasting
-- Press 'A' to toggle auto-buying of buildings and upgrades
 - Type `stopAutomation()` in the console to stop all automation
 
 ### Configuration
@@ -43,18 +39,6 @@ const CONFIG = {
 ```
 
 ### Features Explained
-
-#### Building Purchase Strategy
-
-- Calculates cost-per-CPS ratio for each building
-- Buys buildings when they are more efficient than available upgrades
-- Takes into account current cookie production and prices
-
-#### Upgrade Management
-
-- Evaluates each upgrade's CPS improvement
-- Compares upgrade efficiency with building efficiency
-- Skips certain problematic upgrades automatically
 
 #### Golden Cookie Handling
 
