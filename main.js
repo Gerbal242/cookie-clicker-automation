@@ -17,8 +17,8 @@
 // Configuration
 const CONFIG = {
   CLICK_RATE: 1, // How often to click the cookie (milliseconds) 1 ms
-  PURCHASE_RATE: 1000, // How often to check purchases (milliseconds) 1 second
-  ASCENTION_TIME_AFTER: 86400, // How often we should ascend, I am doing it after a day per run (seconds) 24 hours
+  PURCHASE_RATE: 60000, // How often to check purchases (milliseconds) 1 second
+  ASCENTION_TIME_AFTER: 172800, // How often we should ascend, I am doing it after a day per run (seconds) 24 hours
   EXCLUDED_UPGRADES: new Set([64, 74, 84, 85]), // Upgrades to skip cuz they make weird stuff
   UPGRADE_COST_RATIO: (1 + Math.sqrt(5)) / 2, // TODO: UTILIZE THIS RATIO
 };
@@ -126,4 +126,4 @@ function stopAutomation() {
   clearInterval(purchaseAutomation);
   console.log("All automation stopped");
 }
-// To stop automation, run: stopAutomation()
+console.log("To stop automation, run: stopAutomation()")
