@@ -16,12 +16,10 @@
 
 // Configuration
 const CONFIG = {
-  CLICK_RATE: 1, // How often to click the cookie (milliseconds)
-  PURCHASE_RATE: 1000, // How often to check purchases (milliseconds)
-  ASCENTION_TIME_AFTER: 86400, // How often we should ascend, I am doing it after a day per run
-  MAX_BUILDING_ID: 19, // Highest building ID in the game
-  MAX_UPGRADE_ID: 76, // Highest upgrade ID in the game
-  EXCLUDED_UPGRADES: new Set([64, 74, 84, 85]), // Upgrades to skip (using Set for O(1) lookup)
+  CLICK_RATE: 1, // How often to click the cookie (milliseconds) 1 ms
+  PURCHASE_RATE: 1000, // How often to check purchases (milliseconds) 1 second
+  ASCENTION_TIME_AFTER: 86400, // How often we should ascend, I am doing it after a day per run (seconds) 24 hours
+  EXCLUDED_UPGRADES: new Set([64, 74, 84, 85]), // Upgrades to skip cuz they make weird stuff
   UPGRADE_COST_RATIO: (1 + Math.sqrt(5)) / 2, // TODO: UTILIZE THIS RATIO
 };
 
@@ -34,13 +32,10 @@ const clickingAutomation = setInterval(function () {
     // Click all golden cookies and other shimmers
     Game.shimmers.forEach((shimmer) => shimmer.pop());
 
-    // Click the lump
-    Game.clickLump();
-
-    // Kill all winklers
-    Game.registerHook("logic", () => {
-      Game.wrinklers.forEach((me) => (me.hp -= Number.MAX_VALUE));
-    });
+    // // Kill all winklers
+    // Game.registerHook("logic", () => {
+    //   Game.wrinklers.forEach((me) => (me.hp -= Number.MAX_VALUE));
+    // });
   } catch (err) {
     console.error("Stopping clicking automation:", err.message);
     clearInterval(clickingAutomation);
@@ -50,6 +45,24 @@ const clickingAutomation = setInterval(function () {
 // Separate interval for purchases
 const purchaseAutomation = setInterval(function () {
   try {
+    // Click the lump
+    Game.clickLump();
+
+    // Filter valid upgrades first, then try to buy them
+    const availableUpgrades = Game.UpgradesInStore.filter(
+      (upgrade) =>
+        upgrade &&
+        !CONFIG.EXCLUDED_UPGRADES.has(upgrade.id) &&
+        Game.cookies >= upgrade.getPrice()
+    );
+
+    // Try to buy all available upgrades
+    availableUpgrades.forEach((upgrade) => {
+      try {
+        upgrade.buy();
+      } catch {}
+    });
+
     // Purchase buildings (most expensive first)
     for (let id = Game.ObjectsById.length - 1; id >= 0; id--) {
       const building = Game.ObjectsById[id];
@@ -64,23 +77,6 @@ const purchaseAutomation = setInterval(function () {
     }
 
     // Purchase available upgrades
-    // Filter valid upgrades first, then try to buy them
-    const availableUpgrades = Game.UpgradesInStore.filter(
-      (upgrade) =>
-        upgrade &&
-        !CONFIG.EXCLUDED_UPGRADES.has(upgrade.id) &&
-        Game.cookies >= upgrade.getPrice()
-    );
-
-    // Try to buy all available upgrades
-    availableUpgrades.forEach((upgrade) => {
-      try {
-        upgrade.buy();
-        console.log("Bought upgrade:", upgrade.name);
-      } catch (e) {
-        console.debug("Failed to buy upgrade:", upgrade.name);
-      }
-    });
 
     // TODO: Add support for using lumps to purchase levels
 
@@ -130,5 +126,4 @@ function stopAutomation() {
   clearInterval(purchaseAutomation);
   console.log("All automation stopped");
 }
-
 // To stop automation, run: stopAutomation()
