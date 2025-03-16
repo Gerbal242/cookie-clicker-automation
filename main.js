@@ -17,9 +17,9 @@
 // Configuration
 const CONFIG = {
   CLICK_RATE: 1, // How often to click the cookie (milliseconds) 1 ms
-  PURCHASE_RATE: 1000, // How often to check purchases (milliseconds) 1 second
+  PURCHASE_RATE: 30000, // How often to check purchases (milliseconds) 30 seconds
   ASCENTION_TIME_AFTER: 86400, // How often we should ascend, I am doing it after a day per run (seconds) 24 hours
-  EXCLUDED_UPGRADES: new Set([64, 74, 84, 85]), // Upgrades to skip cuz they make weird stuff
+  EXCLUDED_UPGRADES: new Set([64, 74, 84, 85, 264, 333]), // Upgrades to skip cuz they make weird stuff
   UPGRADE_COST_RATIO: (1 + Math.sqrt(5)) / 2, // TODO: UTILIZE THIS RATIO
 };
 
@@ -45,8 +45,8 @@ const clickingAutomation = setInterval(function () {
 // Separate interval for purchases
 const purchaseAutomation = setInterval(function () {
   try {
-    // Click the lump
-    Game.clickLump();
+    // // Click the lump
+    // Game.clickLump();
 
     // Filter valid upgrades first, then try to buy them
     const availableUpgrades = Game.UpgradesInStore.filter(
@@ -60,7 +60,10 @@ const purchaseAutomation = setInterval(function () {
     availableUpgrades.forEach((upgrade) => {
       try {
         upgrade.buy();
-      } catch {}
+        console.log("Purchasing upgrade", upgrade.name);
+      } catch {
+        console.log("Failed to purchase upgrade", upgrade.name);
+      }
     });
 
     // Purchase buildings (most expensive first)
@@ -75,12 +78,9 @@ const purchaseAutomation = setInterval(function () {
         } catch {}
       }
     }
-
-    // Purchase available upgrades
-
     // TODO: Add support for using lumps to purchase levels
 
-    // Try to ascend if the time on this run has been greater than 24 hours, can be changed in CONFIG
+    // Try to ascend if the time on this run has been greater than 48 hours, can be changed in CONFIG
     var date = new Date();
     date.setTime(Date.now() - Game.startDate);
     var timeInSeconds = date.getTime() / 1000;
@@ -88,31 +88,52 @@ const purchaseAutomation = setInterval(function () {
     if (timeInSeconds > CONFIG.ASCENTION_TIME_AFTER) {
       Game.Ascend(1);
 
-      // Filter data that we can upgrade from
-      const upgradeIds = Array.from(
-        Game.ascendUpgradesl.querySelectorAll(
-          ".crate.upgrade.heavenly[data-id]"
-        )
-      ).map((upgrade) => upgrade.getAttribute("data-id"));
-
-      // iterate in reverse order through the vector of upgradeIds
-      for (let i = upgradeIds.length - 1; i >= 0; i--) {
-        const upgradeId = upgradeIds[i];
+      // Wait 10 seconds before purchasing upgrades asynchronously in order to populate purchase vector
+      setTimeout(() => {
         try {
-          Game.PurchaseHeavenlyUpgrade(upgradeId);
-          console.log(
-            "Bought heavenly upgrade:",
-            Game.UpgradesById[upgradeId].name
+          const ascendUpgrades = Game.ascendUpgradesl.querySelectorAll(
+            ".crate.upgrade.heavenly[data-id]"
           );
-        } catch (e) {
-          console.debug(
-            "Failed to buy heavenly upgrade:",
-            Game.UpgradesById[upgradeId].name
+          const upgradeIds = Array.from(ascendUpgrades).map((upgrade) => {
+            // Convert the data-id (string) to an integer
+            return parseInt(upgrade.getAttribute("data-id"), 10);
+          });
+
+          // Iterate through the upgradeIds array
+          for (let i = upgradeIds.length - 1; i >= 0; i--) {
+            const upgradeId = upgradeIds[i];
+
+            // Check if the upgradeId is excluded
+            if (!CONFIG.EXCLUDED_UPGRADES.has(upgradeId)) {
+              try {
+                Game.PurchaseHeavenlyUpgrade(upgradeId);
+                console.log(
+                  "Bought heavenly upgrade:",
+                  Game.UpgradesById[upgradeId].name
+                );
+              } catch (e) {
+                console.debug(
+                  "Failed to buy heavenly upgrade:",
+                  Game.UpgradesById[upgradeId].name
+                );
+              }
+            } else {
+              console.log(
+                "Skipping upgrade",
+                Game.UpgradesById[upgradeId].name
+              );
+            }
+          }
+
+          // Finally exit after purchasing
+          Game.Reincarnate(1);
+        } catch (err) {
+          console.error(
+            "Error during ascension upgrade purchase:",
+            err.message
           );
         }
-      }
-      // finally exit after purchasing
-      Game.Reincarnate(1);
+      }, 10000); // Wait 10 seconds before attempting to purchase upgrades
     }
   } catch (err) {
     console.error("Stopping purchase automation:", err.message);
@@ -126,4 +147,4 @@ function stopAutomation() {
   clearInterval(purchaseAutomation);
   console.log("All automation stopped");
 }
-// To stop automation, run: stopAutomation()
+console.log("To stop automation, run: stopAutomation()");
