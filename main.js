@@ -17,7 +17,7 @@
 // Configuration
 const CONFIG = {
   CLICK_RATE: 1, // How often to click the cookie (milliseconds) 1 ms
-  PURCHASE_RATE: 10000, // How often to check purchases (milliseconds) 10 seconds
+  PURCHASE_RATE: 60000, // How often to check purchases (milliseconds) 10 seconds
   ASCENTION_TIME_AFTER: 86400, // How often we should ascend, I am doing it after a day per run (seconds) 24 hours
   EXCLUDED_UPGRADES: new Set([
     64, 74, 84, 85, 181, 182, 183, 184, 185, 209, 274, 281, 323, 327, 328, 331,
@@ -72,13 +72,18 @@ const purchaseAutomation = setInterval(function () {
     // Purchase buildings (most expensive first)
     for (let id = Game.ObjectsById.length - 1; id >= 0; id--) {
       const building = Game.ObjectsById[id];
-      if (building && !building.locked && Game.cookies >= building.price) {
-        try {
-          building.buy(1);
-        } catch {}
-        try {
-          building.levelup();
-        } catch {}
+      if (building && !building.locked) {
+        if (Game.cookies >= building.price) {
+          try {
+            building.buy();
+            console.log("Purchasing building", building.name)
+          } catch {}
+        }
+        if (building.bought >= 1){
+          try {
+            building.levelUp();
+          } catch {}
+        }
       }
     }
     // TODO: Add support for using lumps to purchase levels
