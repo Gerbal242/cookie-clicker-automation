@@ -20,7 +20,7 @@ const CONFIG = {
   PURCHASE_RATE: 60000, // How often to check purchases (milliseconds) 10 seconds
   ASCENTION_TIME_AFTER: 43200, // How often we should ascend, I am doing it after 12 hours
   EXCLUDED_UPGRADES: new Set([
-    85, 181, 182, 183, 184, 185, 209, 264, 323, 327, 328, 331,
+    181, 182, 183, 184, 185, 209, 264, 323, 327, 328, 331,
     333, 414,
   ]), // Upgrades to skip cuz they make weird stuff
   UPGRADE_COST_RATIO: (1 + Math.sqrt(5)) / 2, // TODO: UTILIZE THIS RATIO
