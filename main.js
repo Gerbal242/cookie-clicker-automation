@@ -63,6 +63,9 @@ const purchaseAutomation = setInterval(function () {
     availableUpgrades.forEach((upgrade) => {
       try {
         upgrade.buy();
+        if (upgrade.id == 69){
+          upgrade.buy(1);Game.ClosePrompt()
+        }
         console.log("Purchasing upgrade", upgrade.name);
       } catch {
         console.log("Failed to purchase upgrade", upgrade.name);
