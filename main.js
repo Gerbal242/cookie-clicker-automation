@@ -35,10 +35,6 @@ const clickingAutomation = setInterval(function () {
     // Click all golden cookies and other shimmers
     Game.shimmers.forEach((shimmer) => shimmer.pop());
 
-    // Kill all winklers
-    Game.registerHook("logic", () => {
-      Game.wrinklers.forEach((me) => (me.hp -= Number.MAX_VALUE));
-    });
   } catch (err) {
     console.error("Stopping clicking automation:", err.message);
     clearInterval(clickingAutomation);
@@ -52,6 +48,11 @@ const purchaseAutomation = setInterval(function () {
   try {
     // // Click the lump
     // Game.clickLump();
+    // Kill all winklers
+    Game.registerHook("logic", () => {
+      Game.wrinklers.forEach((me) => (me.hp -= Number.MAX_VALUE));
+    });
+
 
     // Filter valid upgrades first, then try to buy them
     const availableUpgrades = Game.UpgradesInStore.filter(
