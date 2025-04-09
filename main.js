@@ -46,6 +46,9 @@ const clickingAutomation = setInterval(function () {
 // Separate interval for purchases
 const purchaseAutomation = setInterval(function () {
   try {
+    // Set the purchase bulk to buy 10
+    Game.storeBulkButton(3);
+    
     // // Click the lump
     // Game.clickLump();
     // Kill all winklers
