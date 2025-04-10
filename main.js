@@ -21,7 +21,7 @@ const CONFIG = {
   ASCENTION_TIME_AFTER: 43200, // How often we should ascend, I am doing it after 12 hours
   EXCLUDED_UPGRADES: new Set([
     64, 84, 182, 183, 184, 185, 209, 264, 265, 266, 267, 268, 331,
-    333, 361, 414, 452
+    333, 361, 414, 452, 806
   ]), // Upgrades to skip cuz they make weird stuff
   UPGRADE_COST_RATIO: (1 + Math.sqrt(5)) / 2, // TODO: UTILIZE THIS RATIO
 };
