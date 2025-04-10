@@ -17,7 +17,7 @@
 // Configuration
 const CONFIG = {
   CLICK_RATE: 1, // How often to click the cookie (milliseconds) 1 ms
-  PURCHASE_RATE: 60000, // How often to check purchases (milliseconds) 10 seconds
+  PURCHASE_RATE: 15000, // How often to check purchases (milliseconds) 10 seconds
   ASCENTION_TIME_AFTER: 43200, // How often we should ascend, I am doing it after 12 hours
   EXCLUDED_UPGRADES: new Set([
     69, 84, 182, 183, 184, 185, 209, 264, 265, 266, 267, 268, 331,
@@ -47,7 +47,7 @@ const clickingAutomation = setInterval(function () {
 const purchaseAutomation = setInterval(function () {
   try {
     // Set the purchase bulk to buy 10
-    Game.storeBulkButton(3);
+    // Game.storeBulkButton(3);
     
     // // Click the lump
     // Game.clickLump();
