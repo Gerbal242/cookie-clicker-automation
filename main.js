@@ -79,7 +79,7 @@ const purchaseAutomation = setInterval(function () {
     });
 
     // Purchase buildings (most expensive first)
-    for (let id = Game.ObjectsById.length - 1; id >= 0; id--) {
+    for (let id = 0; id < Game.ObjectsById.length; id++) {
       const building = Game.ObjectsById[id];
       if (building && !building.locked) {
         if (Game.cookies >= building.price) {
